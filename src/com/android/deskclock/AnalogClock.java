@@ -125,7 +125,6 @@ public class AnalogClock extends View {
 
         // tick the seconds
         post(mClockTick);
-
     }
 
     @Override
@@ -263,13 +262,30 @@ public class AnalogClock extends View {
         }
     };
 
+    @Override
+    protected void onVisibilityChanged(View changedView, int visibility) {
+        // if ancestor view visibility changed to not visible then update
+        // our visibility
+        if (changedView != this) {
+            if (getVisibility() == View.VISIBLE && visibility != View.VISIBLE) {
+                setVisibility(visibility);
+            }
+        }
+        // tick the seconds when visible
+        else if (visibility == View.VISIBLE) {
+            post(mClockTick);
+        }
+    }
+
     private final Runnable mClockTick = new Runnable () {
 
         @Override
         public void run() {
-            onTimeChanged();
-            invalidate();
-            AnalogClock.this.postDelayed(mClockTick, 1000);
+            if (getVisibility() == View.VISIBLE) {
+                onTimeChanged();
+                invalidate();
+                AnalogClock.this.postDelayed(mClockTick, 1000);
+            }
         }
     };
 

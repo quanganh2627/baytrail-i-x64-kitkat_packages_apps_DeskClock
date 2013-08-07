@@ -177,7 +177,6 @@ public class AlarmAlertFullScreen extends Activity implements GlowPadView.OnTrig
 
         mGlowPadView = (GlowPadView) findViewById(R.id.glow_pad_view);
         mGlowPadView.setOnTriggerListener(this);
-        triggerPing();
     }
 
     private void triggerPing() {
@@ -304,6 +303,10 @@ public class AlarmAlertFullScreen extends Activity implements GlowPadView.OnTrig
         if (LOG) {
             Log.v("AlarmAlertFullScreen - onResume");
         }
+        mPingEnabled = true;
+        if (!mPingHandler.hasMessages(PING_MESSAGE_WHAT)) {
+            triggerPing();
+        }
         // If the alarm was deleted at some point, disable snooze.
         if (Alarms.getAlarm(getContentResolver(), mAlarm.id) == null) {
             mGlowPadView.setTargetResources(R.array.dismiss_drawables);
@@ -371,6 +374,11 @@ public class AlarmAlertFullScreen extends Activity implements GlowPadView.OnTrig
         return;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        mPingEnabled = false;
+    }
 
     @Override
     public void onGrabbed(View v, int handle) {
@@ -380,7 +388,9 @@ public class AlarmAlertFullScreen extends Activity implements GlowPadView.OnTrig
     @Override
     public void onReleased(View v, int handle) {
         mPingEnabled = true;
-        triggerPing();
+        if (!mPingHandler.hasMessages(PING_MESSAGE_WHAT)) {
+            triggerPing();
+        }
     }
 
     @Override
