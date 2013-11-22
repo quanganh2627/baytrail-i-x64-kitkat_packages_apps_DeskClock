@@ -47,13 +47,13 @@ public class SettingsActivity extends PreferenceActivity
     private static final int ALARM_STREAM_TYPE_BIT =
             1 << AudioManager.STREAM_ALARM;
 
-    static final String KEY_ALARM_IN_SILENT_MODE =
+    public static final String KEY_ALARM_IN_SILENT_MODE =
             "alarm_in_silent_mode";
-    static final String KEY_ALARM_SNOOZE =
+    public static final String KEY_ALARM_SNOOZE =
             "snooze_duration";
-    static final String KEY_VOLUME_BEHAVIOR =
+    public static final String KEY_VOLUME_BEHAVIOR =
             "volume_button_setting";
-    static final String KEY_AUTO_SILENCE =
+    public static final String KEY_AUTO_SILENCE =
             "auto_silence";
     public static final String KEY_CLOCK_STYLE =
             "clock_style";
@@ -61,7 +61,7 @@ public class SettingsActivity extends PreferenceActivity
             "home_time_zone";
     public static final String KEY_AUTO_HOME_CLOCK =
             "automatic_home_clock";
-    static final String KEY_VOLUME_BUTTONS =
+    public static final String KEY_VOLUME_BUTTONS =
             "volume_button_setting";
 
     public static final String DEFAULT_VOLUME_BEHAVIOR = "0";
@@ -177,6 +177,12 @@ public class SettingsActivity extends PreferenceActivity
         return true;
     }
 
+    @Override
+    protected boolean isValidFragment(String fragmentName) {
+        // Exported activity but no headers we support.
+        return false;
+    }
+
     private void updateAutoSnoozeSummary(ListPreference listPref,
             String delay) {
         int i = Integer.parseInt(delay);
@@ -276,11 +282,13 @@ public class SettingsActivity extends PreferenceActivity
         Resources resources = this.getResources();
         String[] ids = resources.getStringArray(R.array.timezone_values);
         String[] labels = resources.getStringArray(R.array.timezone_labels);
+        int minLength = ids.length;
         if (ids.length != labels.length) {
-            Log.wtf("Timezone ids and labels have different length!");
+            minLength = Math.min(minLength, labels.length);
+            Log.e("Timezone ids and labels have different length!");
         }
         List<TimeZoneRow> timezones = new ArrayList<TimeZoneRow>();
-        for (int i = 0; i < ids.length; i++) {
+        for (int i = 0; i < minLength; i++) {
             timezones.add(new TimeZoneRow(ids[i], labels[i]));
         }
         Collections.sort(timezones);
